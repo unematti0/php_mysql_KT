@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="et">
 <head>
@@ -7,62 +8,43 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<?php
-// Taustapildi valik (võid kasutada oma pilte või jätta ühe pildi)
-$taust = "parandus.png";
-?>
 
-<!-- NAVBAR ainult Admin lehe lingiga -->
-<nav class="navbar navbar-expand-lg navbar-dark position-absolute top-0 start-0 end-0 bg-transparent">
-  <div class="container">
-    <a class="navbar-brand text-black" href="index.php">Autotöökoda</a>
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navmenu">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link text-black" href="admin.php">Admin leht</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
 
-<!-- Jumbo väiksemaks -->
-<div class="d-flex align-items-center justify-content-center text-black text-center"
-     style="height: 180px; background-image: url('<?php echo $taust; ?>'); background-size: cover; background-position: center;">
+<a href="admin.php" class="btn btn-danger">Admin leht</a>
+<div class="container py-4">
+  <h1>Broneeri autoremondi aeg</h1>
  
-</div>
-
-<!-- Sisu algus -->
-<div class="container my-5" style="max-width: 650px;">
-  <?php if (!empty($alert)) echo $alert; ?>
-
+  <?php
+  // Kuvame teated, kui neid on
+  if (!empty($alert)) echo $alert;
+    ?>
   <!-- Broneeringu vorm -->
-  <form method="POST" class="row g-3 p-4 border rounded bg-light shadow-sm mb-5">
+  <form method="POST" class="row g-3">
     <h4>Kliendi andmed</h4>
-    <div class="col-12">
+    <div class="col-md-6">
       <label class="form-label">Eesnimi</label>
       <input type="text" name="eesnimi" class="form-control" required>
     </div>
-    <div class="col-12">
+    <div class="col-md-6">
       <label class="form-label">Perekonnanimi</label>
       <input type="text" name="perekonnanimi" class="form-control" required>
     </div>
-    <div class="col-12">
+    <div class="col-md-6">
       <label class="form-label">Isikukood</label>
       <input type="text" name="isikukood" class="form-control" pattern="\d{11}" maxlength="11" required>
     </div>
-    <div class="col-12">
+    <div class="col-md-6">
       <label class="form-label">E-mail</label>
       <input type="email" name="email" class="form-control" required>
     </div>
 
     <h4 class="pt-3">Broneering</h4>
-    <div class="col-12">
+    <div class="col-md-6">
       <label class="form-label">Teenuse tüüp</label>
       <select name="teenus" class="form-select" required>
         <option value="">Vali teenus...</option>
         <?php
+        // Teenuste valik
         include("config.php");
         $teenused = mysqli_query($yhendus, "SELECT * FROM teenus");
         while ($r = mysqli_fetch_assoc($teenused)) {
@@ -71,11 +53,13 @@ $taust = "parandus.png";
         ?>
       </select>
     </div>
-    <div class="col-12">
+
+    <div class="col-md-6">
       <label class="form-label">Töökoht</label>
       <select name="töökoht" class="form-select" required>
         <option value="">Vali töökoht...</option>
         <?php
+        // Töökohtade valik
         $tk = mysqli_query($yhendus, "SELECT * FROM tookoht");
         while ($r = mysqli_fetch_assoc($tk)) {
             echo "<option value='".$r['id']."'>".$r['nimi']."</option>";
@@ -83,11 +67,12 @@ $taust = "parandus.png";
         ?>
       </select>
     </div>
-    <div class="col-6">
+
+    <div class="col-md-4">
       <label class="form-label">Kuupäev</label>
       <input type="date" name="kuupäev" class="form-control" required min="<?php echo date('Y-m-d'); ?>">
     </div>
-    <div class="col-6">
+    <div class="col-md-4">
       <label class="form-label">Algusaeg</label>
       <input 
         type="time" 
@@ -95,6 +80,7 @@ $taust = "parandus.png";
         class="form-control" 
         required
         <?php
+          // Kui valitud kuupäev on täna, sea min väärtus praegune kellaaeg
           $min_time = "";
           if (isset($_POST['kuupäev']) && $_POST['kuupäev'] == date('Y-m-d')) {
               $min_time = date('H:i');
@@ -108,90 +94,87 @@ $taust = "parandus.png";
         ?>
       >
     </div>
+
     <div class="col-12">
-      <button type="submit" name="submit" class="btn btn-primary w-100">Broneeri aeg</button>
+      <button type="submit" name="submit" class="btn btn-primary">Broneeri aeg</button>
     </div>
   </form>
 
-  <!-- Broneeringute tabel -->
-  <div class="card p-4">
-    <h5>Olemasolevad broneeringud</h5>
-    <div class="table-responsive">
-      <table class="table table-bordered table-striped align-middle mb-0">
-        <thead>
-            <tr>
-                <th>Klient</th>
-                <th>Teenus</th>
-                <th>Kuupäev</th>
-                <th>Kellaaeg</th>
-                <th>Töökoht</th>
-                <th>Tegevus</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            $broneeringud = "
-                SELECT b.id, b.kuupaev, b.algus_kellaaeg, 
-                       k.eesnimi, k.perekonnanimi, 
-                       t.nimi AS teenus, 
-                       tk.nimi AS tookoht
-                FROM broneering b
-                JOIN klient k ON b.klient_id = k.id
-                JOIN teenus t ON b.teenus_id = t.id
-                JOIN tookoht tk ON b.tookoht_id = tk.id
-                ORDER BY b.kuupaev DESC, b.algus_kellaaeg DESC
-                LIMIT 50
-            ";
-            $tulemus = mysqli_query($yhendus, $broneeringud);
-            $muuda_id = isset($_GET['muuda']) ? intval($_GET['muuda']) : 0;
-            while ($rida = mysqli_fetch_assoc($tulemus)) {
-                $broneeringu_aeg = strtotime($rida['kuupaev'] . ' ' . $rida['algus_kellaaeg']);
-                $saab_muuta = ($broneeringu_aeg - time() >= 24 * 3600);
+  <hr class="my-5">
+  <h2>Olemasolevad broneeringud</h2>
+  <table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Klient</th>
+            <th>Teenus</th>
+            <th>Kuupäev</th>
+            <th>Kellaaeg</th>
+            <th>Töökoht</th>
+            <th>Tegevus</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        // Kuvame kõik broneeringud ja vajadusel muutmise vormi
+        $broneeringud = "
+            SELECT b.id, b.kuupaev, b.algus_kellaaeg, 
+                   k.eesnimi, k.perekonnanimi, 
+                   t.nimi AS teenus, 
+                   tk.nimi AS tookoht
+            FROM broneering b
+            JOIN klient k ON b.klient_id = k.id
+            JOIN teenus t ON b.teenus_id = t.id
+            JOIN tookoht tk ON b.tookoht_id = tk.id
+            ORDER BY b.kuupaev DESC, b.algus_kellaaeg DESC
+            LIMIT 50
+        ";
 
-                if ($muuda_id === intval($rida['id']) && $saab_muuta) {
-                    echo "<tr>
-                    <form method='post'>
-                      <td>{$rida['eesnimi']} {$rida['perekonnanimi']}<input type='hidden' name='broneering_id' value='{$rida['id']}'></td>
-                      <td>{$rida['teenus']}</td>
-                      <td><input type='date' name='muuda_kuupaev' value='{$rida['kuupaev']}' class='form-control form-control-sm' required></td>
-                      <td><input type='time' name='muuda_kellaaeg' value='{$rida['algus_kellaaeg']}' class='form-control form-control-sm' required></td>
-                      <td>{$rida['tookoht']}</td>
-                      <td>
-                        <button type='submit' name='muuda_broneering' class='btn btn-success btn-sm'>Salvesta</button>
-                        <a href='index.php' class='btn btn-secondary btn-sm'>Tühista</a>
-                      </td>
-                    </form>
-                    </tr>";
+        $tulemus = mysqli_query($yhendus, $broneeringud);
+
+        // Muutmise vormi kuvamine
+        $muuda_id = isset($_GET['muuda']) ? intval($_GET['muuda']) : 0;
+
+        while ($rida = mysqli_fetch_assoc($tulemus)) {
+            $broneeringu_aeg = strtotime($rida['kuupaev'] . ' ' . $rida['algus_kellaaeg']);
+            $saab_muuta = ($broneeringu_aeg - time() >= 24 * 3600);
+
+            if ($muuda_id === intval($rida['id']) && $saab_muuta) {
+                // Muutmise vorm
+                echo "<tr>
+                <form method='post'>
+                  <td>{$rida['eesnimi']} {$rida['perekonnanimi']}<input type='hidden' name='broneering_id' value='{$rida['id']}'></td>
+                  <td>{$rida['teenus']}</td>
+                  <td><input type='date' name='muuda_kuupaev' value='{$rida['kuupaev']}' class='form-control form-control-sm' required></td>
+                  <td><input type='time' name='muuda_kellaaeg' value='{$rida['algus_kellaaeg']}' class='form-control form-control-sm' required></td>
+                  <td>{$rida['tookoht']}</td>
+                  <td>
+                    <button type='submit' name='muuda_broneering' class='btn btn-success btn-sm'>Salvesta</button>
+                    <a href='index.php' class='btn btn-secondary btn-sm'>Tühista</a>
+                  </td>
+                </form>
+                </tr>";
+            } else {
+                echo "<tr>";
+                echo "<td>".$rida['eesnimi']." ".$rida['perekonnanimi']."</td>";
+                echo "<td>".$rida['teenus']."</td>";
+                echo "<td>".$rida['kuupaev']."</td>";
+                echo "<td>".$rida['algus_kellaaeg']."</td>";
+                echo "<td>".$rida['tookoht']."</td>";
+                echo "<td>";
+                if ($saab_muuta) {
+                    echo "<a href='?muuda={$rida['id']}' class='btn btn-warning btn-sm'>Muuda</a> ";
+                    echo "<a href='?kustuta=1&id={$rida['id']}' class='btn btn-danger btn-sm' onclick=\"return confirm('Kas oled kindel, et soovid selle broneeringu tühistada?');\">Tühista</a>";
                 } else {
-                    echo "<tr>";
-                    echo "<td>".$rida['eesnimi']." ".$rida['perekonnanimi']."</td>";
-                    echo "<td>".$rida['teenus']."</td>";
-                    echo "<td>".$rida['kuupaev']."</td>";
-                    echo "<td>".$rida['algus_kellaaeg']."</td>";
-                    echo "<td>".$rida['tookoht']."</td>";
-                    echo "<td>";
-                    if ($saab_muuta) {
-                        echo "<a href='?muuda={$rida['id']}' class='btn btn-warning btn-sm'>Muuda</a> ";
-                        echo "<a href='?kustuta=1&id={$rida['id']}' class='btn btn-danger btn-sm' onclick=\"return confirm('Kas oled kindel, et soovid selle broneeringu tühistada?');\">Tühista</a>";
-                    } else {
-                        echo "<span class='text-muted'>Muuta/tühistada ei saa</span>";
-                    }
-                    echo "</td>";
-                    echo "</tr>";
+                    echo "<span class='text-muted'>Muuta/tühistada ei saa</span>";
                 }
+                echo "</td>";
+                echo "</tr>";
             }
-            ?>
-        </tbody>
-      </table>
-    </div>
-  </div>
+        }
+        ?>
+    </tbody>
+  </table>
 </div>
-
-<footer class="text-center pt-4 mt-5 border-top">
-  <p class="mb-4">Mattias Elmers</p>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 
