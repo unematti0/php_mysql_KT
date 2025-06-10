@@ -1,20 +1,56 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="et">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Autoremondi broneering</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Mattias Elmers</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
 </head>
 <body>
 
+<?php
+// lehe kontroll
+if (!empty($_GET['leht'])) {
+    $leht = $_GET['leht'];
+    $lubatud = array('Avaleht', 'minust', 'kontakt', 'admin');
+    $kontroll = in_array($leht, $lubatud);
+    if (!$kontroll) {
+        $leht = 'Avaleht';
+    }
+} else {
+    $leht = 'Avaleht'; 
+}
 
-<a href="admin.php" class="btn btn-danger">Admin leht</a>
-<div class="container py-4">
-  <h1>Broneeri autoremondi aeg</h1>
- 
-  <?php
+?>
+<!-- navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark position-absolute top-0 start-0 end-0 bg-transparent">
+  <div class="container">
+
+    <a class="navbar-brand text-white" href="index.php?leht=Avaleht">Mattias Elmers</a>
+
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+      <div class="collapse navbar-collapse" id="navmenu">
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link text-white" href="index.php?leht=Avaleht">Avaleht</a></li>
+           
+            <li class="nav-item"><a class="nav-link text-white" href="admin.php">Admin</a></li>
+      </ul>
+      </div>
+  </div>
+</nav>
+
+<!-- jumbo -->
+<div class="d-flex align-items-center justify-content-center text-white text-center" style="height: 400px; background-image: url('workshop.jpg'); background-size: cover; background-position: center;">
+  <div>
+    <h1 class="display-4 fw-bold">Auto Parandus</h1>
+    <p class="lead">Parim maailmas</p>
+  </div>
+</div>
+
+<!-- sisu -->
+<?php
   // Kuvame teated, kui neid on
   if (!empty($alert)) echo $alert;
     ?>
@@ -172,11 +208,7 @@
             }
         }
         ?>
-    </tbody>
-  </table>
-</div>
-</body>
-</html>
+
 
 <?php
 // ===================== PHP LOGIKA =====================
@@ -312,3 +344,19 @@ if (isset($_POST["submit"])) {
     }
 }
 ?>
+  
+
+
+
+
+    </tbody>
+  </table>
+
+
+<footer class="text-center pt-4 mt-5 border-top">
+  <p class="mb-4">Mattias Elmers</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -38,7 +38,7 @@ if (!empty($_POST['login']) && !empty($_POST['pass'])) {
 <body class="container mt-5">
     <h1>Logi sisse</h1>
     <?php if (!empty($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
-    <form action="" method="post" class="mb-3">
+    <form method="post" class="mb-3">
         <div class="mb-3">
             <label for="login" class="form-label">Kasutajanimi</label>
             <input type="text" name="login" id="login" class="form-control" required>
