@@ -12,7 +12,7 @@
 // lehe kontroll
 if (!empty($_GET['leht'])) {
     $leht = $_GET['leht'];
-    $lubatud = array('Avaleht', 'minust', 'kontakt', 'admin');
+    $lubatud = array('Avaleht', 'admin');
     $kontroll = in_array($leht, $lubatud);
     if (!$kontroll) {
         $leht = 'Avaleht';
@@ -76,7 +76,7 @@ if (!empty($_GET['leht'])) {
 
     <h4 class="pt-3">Broneering</h4>
     <div class="col-md-6">
-      <label class="form-label">Teenuse tĆ¼Ć¼p</label>
+      <label class="form-label">Teenuse tüüp</label>
       <select name="teenus" class="form-select" required>
         <option value="">Vali teenus...</option>
         <?php
@@ -91,9 +91,9 @@ if (!empty($_GET['leht'])) {
     </div>
 
     <div class="col-md-6">
-      <label class="form-label">TĆ¶Ć¶koht</label>
-      <select name="tĆ¶Ć¶koht" class="form-select" required>
-        <option value="">Vali tĆ¶Ć¶koht...</option>
+      <label class="form-label">Töökoht</label>
+      <select name="töökoht" class="form-select" required>
+        <option value="">Vali töökoht...</option>
         <?php
         // TĆ¶Ć¶kohtade valik
         $tk = mysqli_query($yhendus, "SELECT * FROM tookoht");
@@ -105,8 +105,8 @@ if (!empty($_GET['leht'])) {
     </div>
 
     <div class="col-md-4">
-      <label class="form-label">KuupĆ¤ev</label>
-      <input type="date" name="kuupĆ¤ev" class="form-control" required min="<?php echo date('Y-m-d'); ?>">
+      <label class="form-label">Kuupäev</label>
+      <input type="date" name="Kuupäev" class="form-control" required min="<?php echo date('Y-m-d'); ?>">
     </div>
     <div class="col-md-4">
       <label class="form-label">Algusaeg</label>
@@ -116,12 +116,12 @@ if (!empty($_GET['leht'])) {
         class="form-control" 
         required
         <?php
-          // Kui valitud kuupĆ¤ev on tĆ¤na, sea min vĆ¤Ć¤rtus praegune kellaaeg
+          // Kui valitud Kuupäev on tĆ¤na, sea min vĆ¤Ć¤rtus praegune kellaaeg
           $min_time = "";
-          if (isset($_POST['kuupĆ¤ev']) && $_POST['kuupĆ¤ev'] == date('Y-m-d')) {
+          if (isset($_POST['kuupäev']) && $_POST['kuupäev'] == date('Y-m-d')) {
               $min_time = date('H:i');
           }
-          if (!isset($_POST['kuupĆ¤ev']) && date('Y-m-d') == date('Y-m-d')) {
+          if (!isset($_POST['kuupäev']) && date('Y-m-d') == date('Y-m-d')) {
               $min_time = date('H:i');
           }
           if ($min_time) {
@@ -143,9 +143,9 @@ if (!empty($_GET['leht'])) {
         <tr>
             <th>Klient</th>
             <th>Teenus</th>
-            <th>KuupĆ¤ev</th>
+            <th>Kuupäev</th>
             <th>Kellaaeg</th>
-            <th>TĆ¶Ć¶koht</th>
+            <th>Töökoht</th>
             <th>Tegevus</th>
         </tr>
     </thead>
@@ -199,9 +199,9 @@ if (!empty($_GET['leht'])) {
                 echo "<td>";
                 if ($saab_muuta) {
                     echo "<a href='?muuda={$rida['id']}' class='btn btn-warning btn-sm'>Muuda</a> ";
-                    echo "<a href='?kustuta=1&id={$rida['id']}' class='btn btn-danger btn-sm' onclick=\"return confirm('Kas oled kindel, et soovid selle broneeringu tĆ¼histada?');\">TĆ¼hista</a>";
+                    echo "<a href='?kustuta=1&id={$rida['id']}' class='btn btn-danger btn-sm' onclick=\"return confirm('Kas oled kindel, et soovid selle broneeringutühistada?');\">TĆ¼hista</a>";
                 } else {
-                    echo "<span class='text-muted'>Muuta/tĆ¼histada ei saa</span>";
+                    echo "<span class='text-muted'>Muuta/tühistada ei saa</span>";
                 }
                 echo "</td>";
                 echo "</tr>";
@@ -228,8 +228,8 @@ function is_valid_isikukood($isikukood) {
 $alert = "";
 
 /**
- * 2. Broneeringu tĆ¼histamine (ainult kui vĆ¤hemalt 24h enne aega)
- * - Kontrollib, kas broneeringut saab tĆ¼histada (vĆ¤hemalt 24h enne aega)
+ * 2. Broneeringutühistamine (ainult kui vĆ¤hemalt 24h enne aega)
+ * - Kontrollib, kas broneeringut saabtühistada (vĆ¤hemalt 24h enne aega)
  * - Kui saab, kustutab broneeringu
  */
 if (isset($_GET['kustuta']) && isset($_GET['id'])) {
@@ -239,9 +239,9 @@ if (isset($_GET['kustuta']) && isset($_GET['id'])) {
         $broneeringu_aeg = strtotime($row['kuupaev'] . ' ' . $row['algus_kellaaeg']);
         if ($broneeringu_aeg - time() >= 24 * 3600) {
             mysqli_query($yhendus, "DELETE FROM broneering WHERE id=$broneering_id");
-            $alert = '<div class="alert alert-success">Broneering tĆ¼histatud!</div>';
+            $alert = '<div class="alert alert-success">Broneeringtühistatud!</div>';
         } else {
-            $alert = '<div class="alert alert-danger">Broneeringut saab tĆ¼histada ainult kuni 24 tundi enne aega!</div>';
+            $alert = '<div class="alert alert-danger">Broneeringut saabtühistada ainult kuni 24 tundi enne aega!</div>';
         }
     }
 }
@@ -295,7 +295,7 @@ if (isset($_POST["submit"])) {
     $email = mysqli_real_escape_string($yhendus, $_POST["email"]);
     $teenus_id = intval($_POST["teenus"]);
     $tookoht_id = intval($_POST["tĆ¶Ć¶koht"]);
-    $kuupaev = mysqli_real_escape_string($yhendus, $_POST["kuupĆ¤ev"]);
+    $kuupaev = mysqli_real_escape_string($yhendus, $_POST["Kuupäev"]);
     $kellaaeg = mysqli_real_escape_string($yhendus, $_POST["kellaaeg"]);
 
     $broneeringu_aeg = strtotime($kuupaev . ' ' . $kellaaeg);
@@ -319,7 +319,7 @@ if (isset($_POST["submit"])) {
             $kontroll_tulemus = mysqli_query($yhendus, $kontroll);
 
             if (mysqli_num_rows($kontroll_tulemus) > 0) {
-                $alert = '<div class="alert alert-danger">Valitud tĆ¶Ć¶koht on sellel ajal juba broneeritud.</div>';
+                $alert = '<div class="alert alert-danger">Valitud töökoht on sellel ajal juba broneeritud.</div>';
             } else {
                 // Otsime vĆµi lisame kliendi
                 $klient_q = "SELECT id FROM klient WHERE isikukood='$isikukood'";
